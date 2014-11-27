@@ -1,20 +1,8 @@
 (function(){
 	var hasData = false, ww = null;
+	var AudioContext = window.AudioContext || window.webkitAudioContext;
+	var audioCtx = new AudioContext();
 
-	var context = new AudioContext();
-	/*
-	var vco1 = context.createOscillator(),
-			vco2 = context.createOscillator(),
-			vco3 = context.createOscillator(),
-			gain1 = context.createGain(),
-			gain2 = context.createGain(),
-			gain3 = context.createGain();
-
-	vco1.type = 'sine';
-	vco2.type = 'sine';
-	vco3.type = 'square';
-	*/
-	
 	// start
 	init();
 
@@ -22,23 +10,22 @@
 		location();
 	}
 
-	function climate(){
-
+	function climate(weather_id){
 		// chooses/sets the appropriate composer depending on the weather code
-		switch(weather_id){
-			case weather_id <= 500 && weather_id < 600:
-				//set and create composer settings object here
-				break;
-			case weather_id <= 600 && weather_id < 700:
-				//set and create composer settings object here
-				break;
+		// faster than switch 
+		if(weather_id >= 300 && weather_id < 400){
+			//set and create composer settings object here
+		} else if(weather_id >= 400 && weather_id < 500){
+			//set and create composer settings object here
+		} else if(weather_id >= 500 && weather_id < 600){
+			//set and create composer settings object here
 		}
+		
+		
 	}
 
 // composer as obj? pros/cons
-
 	var Composer = {
-
 		// include method that accepts the weather data to be used throughout the object
 	};
 
@@ -58,6 +45,7 @@
 			'weather_code': weather.weather[0].id,
 			'rain': weather.rain, //Precipitation volume for last 3 hours, mm
 			'snow': weather.snow //Snow volume for last 3 hours, mm
+
 			/*
 			city : San Francisco
 			clouds : 1
@@ -92,43 +80,18 @@
 		});
 
 		// Make an oscillator, connect the modulator stack, play it!
-		var osc = context.createOscillator();
+		var osc = audioCtx.createOscillator();
 		osc.type = "sine";
 		osc.frequency.value = wd.temp;
 		modulatorStackNode.gain.connect(osc.frequency);
 
-		var filter = context.createBiquadFilter();
+		var filter = audioCtx.createBiquadFilter();
 		filter.frequency.value = wd.pressure;
 		filter.Q.value = 10;
 		osc.connect(filter);
-		filter.connect(context.destination);
+		filter.connect(audioCtx.destination);
 
 		// osc.start(0);
-
-		//audio connections
-		/*
-		vco1.connect(vco2);
-		// vco1.start(1);
-		vco2.connect(context.destination);
-		gain2.connect(context.destination);
-		gain2.gain.value = 0;
-		vco2.start(0);
-		vco3.connect(gain3);
-		gain3.connect(context.destination);
-		gain3.gain.value = 0;
-		// vco3.start(3);
-
-		vco1.frequency.value = wd.temp * 0.5;
-		vco2.frequency.value = wd.clouds;
-		// vco2.detune.value = wd.clouds * .10;
-		vco3.frequency.value = wd.humidity * .25;
-		gain2.gain.value = wd.wind_degrees * .0005;
-		gain3.gain.value = wd.wind_speed * .025;
-		*/
-		
-		
-
-
 	}
 
 	//get user location
@@ -191,9 +154,11 @@
 	    return wd;
 	}
 */
+
+/* Audio Functions */
 	function Modulator (type, freq, gain) {
-	  this.modulator = context.createOscillator();
-	  this.gain = context.createGain();
+	  this.modulator = audioCtx.createOscillator();
+	  this.gain = audioCtx.createGain();
 	  this.modulator.type = type;
 	  this.modulator.frequency.value = freq;
 	  this.gain.gain.value = gain;
@@ -201,6 +166,7 @@
 	  this.modulator.start(0);
 	}
 
+/* Utilities */
 	function print_data(data){
 		var info = document.createElement('div');
 		for(p in data){
