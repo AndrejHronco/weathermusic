@@ -2,7 +2,7 @@
 	var hasData = false, ww = null;
 	var AudioContext = window.AudioContext || window.webkitAudioContext;
 	var audioCtx = new AudioContext();
-
+	// console.log('sampleRate: ', audioCtx.sampleRate);
 	// start
 	init();
 
@@ -11,22 +11,31 @@
 	}
 
 	function climate(weather_id){
+		// either move this inside composer() or make this a method of Composer
 		// chooses/sets the appropriate composer depending on the weather code
+		// choose modulator stack node
 		// faster than switch 
 		if(weather_id >= 300 && weather_id < 400){
 			//set and create composer settings object here
+			console.log('weather id (300s): ', weather_id);
 		} else if(weather_id >= 400 && weather_id < 500){
 			//set and create composer settings object here
+			console.log('weather id (400s): ', weather_id);
 		} else if(weather_id >= 500 && weather_id < 600){
 			//set and create composer settings object here
+			console.log('weather id (500s): ', weather_id);
 		}
-		
-		
+		// etc...
+		// return weather_id;	
 	}
 
 // composer as obj? pros/cons
 	var Composer = {
 		// include method that accepts the weather data to be used throughout the object
+		// this might be easier to create the different composer settings
+		climate: function(weather_id){
+			// weather_id conditionals here
+		},
 	};
 
 
@@ -43,20 +52,20 @@
 			'wind_degrees': weather.wind.deg, // degrees (meteorological)
 			'wind_speed': weather.wind.speed, //mph
 			'weather_code': weather.weather[0].id,
-			'rain': weather.rain, //Precipitation volume for last 3 hours, mm
+			'rain': weather.rain, //Precipitation volume for last 3 hours, mm (object)
 			'snow': weather.snow //Snow volume for last 3 hours, mm
 
 			/*
-			city : San Francisco
-			clouds : 1
+			city : Oakland
+			clouds : 90
 			humidity : 77
-			pressure : 1027
-			temp : 289.95
-			sunrise : 1417014120
-			sunset : 1417049537
-			wind_degrees : 58.0004
-			wind_speed : 1.86
-			weather_code : 721
+			pressure : 1008
+			temp : 288.26
+			sunrise : 1417359932
+			sunset : 1417395030
+			wind_degrees : 140
+			wind_speed : 2.6
+			weather_code : 701
 			rain : undefined
 			snow : undefined
 			*/
@@ -65,8 +74,10 @@
 		// print data to page for reference
 		print_data(wd);
 
+		climate(wd.weather_code);
 		
-		//encapsulate this into Composer
+		// encapsulate this into Composer?
+		// create a different stack depending on weather_id
 		// Make a stack of modulator
 		var modulatorStackNode = [
 		    new Modulator("sawtooth", 1 * wd.clouds, 100*Math.random()),
@@ -91,7 +102,10 @@
 		osc.connect(filter);
 		filter.connect(audioCtx.destination);
 
-		// osc.start(0);
+		whiteNoise(audioCtx, 15);
+
+		osc.start(0);
+		osc.stop(10);
 	}
 
 	//get user location
@@ -133,6 +147,7 @@
 		$.ajax({
 			url: 'http://api.openweathermap.org/data/2.5/weather?lat='+ latitude +'&lon='+ longitude +'&cnt=1',
 			type: 'GET',
+			cache: false,
 			// async: false,
 			dataType: 'jsonp'
 		})
@@ -156,6 +171,7 @@
 */
 
 /* Audio Functions */
+	//create more of these audio functions to choose from
 	function Modulator (type, freq, gain) {
 	  this.modulator = audioCtx.createOscillator();
 	  this.gain = audioCtx.createGain();
@@ -164,6 +180,26 @@
 	  this.gain.gain.value = gain;
 	  this.modulator.connect(this.gain);
 	  this.modulator.start(0);
+	}
+	//whiteNoise generator
+	function whiteNoise (audioContext, duration) {
+		// make this connectable and allow modulation
+		var node = audioContext.createBufferSource(),
+				buffer = audioContext.createBuffer(1, 4096, audioContext.sampleRate),
+				data = buffer.getChannelData(0);
+
+		for (var i = 0; i < 4096; i++) {
+			data[i] = Math.random();
+		}
+
+		node.buffer = buffer;
+		node.loop = true;
+		node.connect(audioContext.destination);
+		node.start(0);
+
+		//stop for testing only
+		if(duration) node.stop(duration);
+		
 	}
 
 /* Utilities */
@@ -174,5 +210,15 @@
 		}
 		document.body.appendChild(info);
 	}
+
+	/* ios enable sound output */
+	window.addEventListener('touchstart', function(){
+		//create empty buffer
+		var buffer = audioCtx.createBuffer(1, 1, 22050);
+		var source = audioCtx.createBufferSource();
+		source.buffer = buffer;
+		source.connect(audioCtx.destination);
+		source.start(0);
+	}, false);
 		
 })();
