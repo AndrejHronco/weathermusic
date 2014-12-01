@@ -1,23 +1,28 @@
-// http://modernweb.com/2014/03/31/creating-sound-with-the-web-audio-api-and-oscillators/
 // Fix up prefixing
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
-var ctx = new AudioContext(), currentOsc;
+var ctx = new AudioContext();
+var currentOsc, currentGain;
 
 function startNote(e) {
-    var frq = notes[e.currentTarget.id], o = ctx.createOscillator();
+    var frq = notes[e.currentTarget.id], o = ctx.createOscillator(), g = ctx.createGain();
     $(e.currentTarget).attr("fill","yellow");
+    if (currentOsc) currentOsc.stop(0);
     o.type = $("#waveType").val();
     if (frq) {
         $("#note").val(e.currentTarget.id);
         o.frequency.value = frq;
-        o.connect(ctx.destination);
         o.start(0);
         currentOsc = o;
+        currentGain = g;
+        
+        g.gain.value = 1;
+        o.connect(g);
+        g.connect(ctx.destination);
     }
 }
 function stopNote(e) {
     $(e.currentTarget).attr("fill","inherit");
-    currentOsc.stop(0);
+    currentGain.gain.value = 0;
     $("#note").val("");
 }
 

@@ -104,6 +104,8 @@
 
 		whiteNoise(audioCtx, 15);
 
+		console.log('time: ', time().hour, time().minute);
+
 		osc.start(0);
 		osc.stop(10);
 	}
@@ -203,6 +205,16 @@
 	}
 
 /* Utilities */
+	function time(){
+		var d = new Date(),
+				h = d.getHours(),
+				m = d.getMinutes();
+		return {
+			hour: h,
+			minute: m
+		};
+	}
+
 	function print_data(data){
 		var info = document.createElement('div');
 		for(p in data){
