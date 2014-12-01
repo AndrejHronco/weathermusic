@@ -15,16 +15,30 @@
 		// chooses/sets the appropriate composer depending on the weather code
 		// choose modulator stack node
 		// faster than switch 
-		if(weather_id >= 300 && weather_id < 400){
+		if(weather_id >= 200 && weather_id < 300){ //Thunderstorm
 			//set and create composer settings object here
-			console.log('weather id (300s): ', weather_id);
-		} else if(weather_id >= 400 && weather_id < 500){
+			console.log('Thunderstorm: ', weather_id);
+		} else if(weather_id >= 300 && weather_id < 400){ //Drizzle
 			//set and create composer settings object here
-			console.log('weather id (400s): ', weather_id);
-		} else if(weather_id >= 500 && weather_id < 600){
+			console.log('Drizzle: ', weather_id);
+		} else if(weather_id >= 500 && weather_id < 600){ //Rain
 			//set and create composer settings object here
-			console.log('weather id (500s): ', weather_id);
+			console.log('Rain: ', weather_id);
+		} else if(weather_id >= 600 && weather_id < 700){ //Snow
+			//set and create composer settings object here
+			console.log('Snow: ', weather_id);
+		} else if(weather_id >= 700 && weather_id < 800){ //Atmosphere
+			//set and create composer settings object here
+			console.log('Atmosphere: ', weather_id);
+		} else if(weather_id >= 800 && weather_id < 900){ //Clouds
+			//set and create composer settings object here
+			console.log('Clouds: ', weather_id);
+		} else if(weather_id >= 900 && weather_id < 950){ //Extreme
+			//set and create composer settings object here
+			console.log('Extreme: ', weather_id);
 		}
+		// 951 - 962 are additional various conditions
+
 		// etc...
 		// return weather_id;	
 	}
@@ -77,6 +91,8 @@
 		print_data(wd);
 
 		climate(wd.weather_code);
+
+		console.log('time: ', time().hour, time().minute);
 		
 		// encapsulate this into Composer?
 		// create a different stack depending on weather_id
@@ -105,8 +121,6 @@
 		filter.connect(audioCtx.destination);
 
 		//whiteNoise(audioCtx, 15);
-
-		console.log('time: ', time().hour, time().minute);
 
 		osc.start(0);
 		osc.stop(10);

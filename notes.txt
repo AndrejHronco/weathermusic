@@ -1,4 +1,22 @@
 What weather sounds like:
-
+Params:
+	hour
+	minute
+	weather code
+	clouds
+	humidity
+	pressure
+	temp (Kelvin (subtract 273.15 to convert to Celsius), convert to F)
+	sunrise (UTC, 1417446389)
+	sunset (UTC, 1417481419)
+	wind_degrees (0 - 360)
+		0° = North
+		90° = East
+		180° = South
+		270° = West
+	wind_speed (mph, 0 - 50)
+	weather_code (200 - 962)
+	rain
+	snow
 Rain:
 	white noise underlay
