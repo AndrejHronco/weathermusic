@@ -47,13 +47,14 @@
 			'humidity': weather.main.humidity, // %
 			'pressure': weather.main.pressure, // hPa
 			'temp': weather.main.temp, //Kelvin (subtract 273.15 to convert to Celsius)
-			'sunrise': weather.sys.sunrise, //unix, UTC
-			'sunset': weather.sys.sunset, //unix, UTC
+			'date': new Date(weather.dt * 1000), //unix UTC
+			'sunrise': new Date(weather.sys.sunrise * 1000), //unix UTC
+			'sunset': new Date(weather.sys.sunset * 1000), //unix UTC
 			'wind_degrees': weather.wind.deg, // degrees (meteorological)
 			'wind_speed': weather.wind.speed, //mph
 			'weather_code': weather.weather[0].id,
-			'rain': weather.rain, //Precipitation volume for last 3 hours, mm (object)
-			'snow': weather.snow //Snow volume for last 3 hours, mm
+			'rain': (weather.rain) ? weather.rain['1h'] : undefined, //Precipitation volume for last 1-3 hours, mm (object) ['1h']
+			'snow': (weather.snow) ? weather.snow['1h'] : undefined //Snow volume for last 3 hours, mm (object) ['1h']
 
 			/*
 			city : Oakland
@@ -66,11 +67,12 @@
 			wind_degrees : 140
 			wind_speed : 2.6
 			weather_code : 701
-			rain : undefined
-			snow : undefined
+			rain : 0.7mm
+			snow : 1.3mm
 			*/
 		};
-		
+		console.log('all data: ', weather);
+
 		// print data to page for reference
 		print_data(wd);
 
@@ -81,9 +83,9 @@
 		// Make a stack of modulator
 		var modulatorStackNode = [
 		    new Modulator("sawtooth", 1 * wd.clouds, 100*Math.random()),
-		    new Modulator("square", 0.1 * wd.humidity, 200*Math.random()),
+		    new Modulator("square", 0.1 * wd.humidity, 100*Math.random()),
 		    new Modulator("sine", wd.pressure, 100*Math.random()),
-		    new Modulator("square", 0.1 * wd.temp, 200*Math.random()),
+		    new Modulator("square", 0.1 * wd.temp, 100*Math.random()),
 		    new Modulator("sine", 0.1 * wd.wind_degrees, 100*Math.random())
 		].reduce(function (input, output) {
 		    input.gain.connect(output.modulator.frequency);
@@ -102,7 +104,7 @@
 		osc.connect(filter);
 		filter.connect(audioCtx.destination);
 
-		whiteNoise(audioCtx, 15);
+		//whiteNoise(audioCtx, 15);
 
 		console.log('time: ', time().hour, time().minute);
 
@@ -150,7 +152,6 @@
 			url: 'http://api.openweathermap.org/data/2.5/weather?lat='+ latitude +'&lon='+ longitude +'&cnt=1',
 			type: 'GET',
 			cache: false,
-			// async: false,
 			dataType: 'jsonp'
 		})
 		.done(function(data) {
@@ -182,6 +183,7 @@
 	  this.gain.gain.value = gain;
 	  this.modulator.connect(this.gain);
 	  this.modulator.start(0);
+	  console.log('Mod:', type, freq, gain);
 	}
 	//whiteNoise generator
 	function whiteNoise (audioContext, duration) {
