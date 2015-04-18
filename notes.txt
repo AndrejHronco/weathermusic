@@ -1,12 +1,12 @@
 What weather sounds like:
 Params:
-	hour
-	minute
-	weather code
-	clouds
-	humidity
-	pressure
-	temp (Kelvin (subtract 273.15 to convert to Celsius), convert to F)
+	hour - 0 - 23
+	minute (0 - 59)
+	weather code (200 - 962)
+	clouds (% 0 -100)
+	humidity (% 0 - 100)
+	pressure (hPa 100 - 2000)
+	temp (Kelvin (subtract 273.15 to convert to Celsius), convert to F) (K - 273.15)* 1.8000
 	sunrise (UTC, 1417446389)
 	sunset (UTC, 1417481419)
 	wind_degrees (0 - 360)

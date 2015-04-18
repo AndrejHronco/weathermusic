@@ -60,7 +60,8 @@
 			'clouds': weather.clouds.all, // %
 			'humidity': weather.main.humidity, // %
 			'pressure': weather.main.pressure, // hPa
-			'temp': weather.main.temp, //Kelvin (subtract 273.15 to convert to Celsius)
+			// 'temp': (weather.main.temp - 273.15) * 1.8000 + 32.00, //Kelvin (subtract 273.15 to convert to Celsius)
+			'temp': weather.main.temp,
 			'date': new Date(weather.dt * 1000), //unix UTC
 			'sunrise': new Date(weather.sys.sunrise * 1000), //unix UTC
 			'sunset': new Date(weather.sys.sunset * 1000), //unix UTC
@@ -85,14 +86,14 @@
 			snow : 1.3mm
 			*/
 		};
-		console.log('all data: ', weather);
+		// console.log('all data: ', weather);
 
 		// print data to page for reference
 		print_data(wd);
 
 		climate(wd.weather_code);
 
-		console.log('time: ', time().hour, time().minute);
+		console.log('time: ', time().hour, time().minute, time().second);
 		
 		// encapsulate this into Composer?
 		// create a different stack depending on weather_id
@@ -101,7 +102,7 @@
 		    new Modulator("sawtooth", 1 * wd.clouds, 100*Math.random()),
 		    new Modulator("square", 0.1 * wd.humidity, 100*Math.random()),
 		    new Modulator("sine", wd.pressure, 100*Math.random()),
-		    new Modulator("square", 0.1 * wd.temp, 100*Math.random()),
+		    new Modulator("square", wd.temp, 100*Math.random()),
 		    new Modulator("sine", 0.1 * wd.wind_degrees, 100*Math.random())
 		].reduce(function (input, output) {
 		    input.gain.connect(output.modulator.frequency);
@@ -120,10 +121,28 @@
 		osc.connect(filter);
 		filter.connect(audioCtx.destination);
 
-		//whiteNoise(audioCtx, 15);
+		/* Noise */
+		// pinkNoise(audioCtx, 15);
 
-		osc.start(0);
-		osc.stop(10);
+		var brownNoise = audioCtx.createBrownNoise();
+		var brownGain = audioCtx.createGain();
+		brownGain.gain.value = 0.1;
+		// brownNoise.connect(brownGain);
+
+		var lfo = audioCtx.createOscillator();
+		lfo.frequency.value = Math.random();
+		var lfoGain = audioCtx.createGain();
+		lfoGain.gain.value = 1;
+
+		lfo.start(0);
+		lfo.connect(lfoGain);
+		lfoGain.connect(brownGain.gain);
+		brownGain.connect(audioCtx.destination);
+
+		/* /Noise */
+		
+		// osc.start(0);
+		//osc.stop(10);
 	}
 
 	//get user location
@@ -199,35 +218,17 @@
 	  this.modulator.start(0);
 	  console.log('Mod:', type, freq, gain);
 	}
-	//whiteNoise generator
-	function whiteNoise (audioContext, duration) {
-		// make this connectable and allow modulation
-		var node = audioContext.createBufferSource(),
-				buffer = audioContext.createBuffer(1, 4096, audioContext.sampleRate),
-				data = buffer.getChannelData(0);
-
-		for (var i = 0; i < 4096; i++) {
-			data[i] = Math.random();
-		}
-
-		node.buffer = buffer;
-		node.loop = true;
-		node.connect(audioContext.destination);
-		node.start(0);
-
-		//stop for testing only
-		if(duration) node.stop(duration);
-		
-	}
 
 /* Utilities */
 	function time(){
 		var d = new Date(),
 				h = d.getHours(),
-				m = d.getMinutes();
+				m = d.getMinutes(),
+				s = d.getSeconds()
 		return {
 			hour: h,
-			minute: m
+			minute: m,
+			second: s
 		};
 	}
 
